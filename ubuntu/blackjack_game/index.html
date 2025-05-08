@@ -5,50 +5,51 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Blackjack</title>
     <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;700&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
 </head>
-<body class="dark-theme"> 
-    <div class="container">
+<body class="dark-theme">
+    <div class="game-container">
         <div class="top-bar">
-            <div id="playerAvatarArea" class="player-avatar-area">
-                <img id="playerAvatarDisplay" src="assets/avatars/default.png" alt="Avatar do Jogador">
-                <button id="changeAvatarButton" class="avatar-change-button">Trocar Avatar</button>
+            <div class="player-info">
+                <img id="playerAvatarDisplay" src="assets/avatars/default.jpg" alt="Avatar do Jogador" class="player-avatar">   
+                <button id="changeAvatarButton" class="avatar-button">Mudar Avatar</button>
             </div>
-            <div class="top-buttons">
-                <button id="themeToggleButton" class="top-right-button">Mudar Tema</button>
-                <button id="historyToggleButton" class="top-right-button">Histórico</button> 
+            <div class="balance-info">
+                Saldo: <span id="balance">$10000</span>
             </div>
+            <button id="themeToggleButton" class="theme-button">Tema Claro</button>
         </div>
-        <h1>Blackjack</h1>
         <canvas id="gameCanvas"></canvas>
         <div class="controls">
-            <button id="hitButton">Hit</button>
-            <button id="standButton">Stand</button>
-            <button id="doubleButton">Double Down</button>
-            <button id="splitButton">Split</button>
-            <button id="newRoundButton">Nova Rodada</button>
-            <button id="exitButton">Sair</button>
+            <div class="bet-section">
+                <label for="betAmount">Aposta:</label>
+                <input type="number" id="betAmount" value="10" min="1">
+            </div>
+            <div class="game-buttons">
+                <button id="hitButton">Hit</button>
+                <button id="standButton">Stand</button>
+                <button id="doubleButton">Double</button>
+                <button id="splitButton">Split</button>
+                <button id="newRoundButton">Nova Rodada</button>
+                <button id="resetBalanceButton">Redefinir Saldo</button>
+                <button id="exitButton">Sair</button>
+            </div>
         </div>
-        <div class="info">
-            <p>Saldo: <span id="balance">$1000</span></p>
-            <p>Aposta: <input type="number" id="betAmount" value="10" min="1"></p>
-        </div>
-        <div id="messageArea"></div>
-        <div id="roundHistoryArea" class="round-history-area" style="display: none;">
-            <h2>Histórico de Rodadas</h2>
+        <div id="messageArea" class="message-area"></div>
+        <button id="historyToggleButton" class="history-button">Histórico</button>
+        <div id="roundHistoryArea" class="history-area" style="display: none;">
+            <h3>Histórico de Rodadas</h3>
             <ul id="roundHistoryList"></ul>
         </div>
-        <div id="avatarSelectionModal" class="modal" style="display: none;">
+        <div id="avatarSelectionModal" class="modal">
             <div class="modal-content">
-                <span class="close-button" id="closeAvatarModal">&times;</span>
+                <span id="closeAvatarModal" class="close">&times;</span>
                 <h2>Escolha seu Avatar</h2>
-                <div id="avatarOptionsContainer" class="avatar-options-container">
-                    <!-- Avatares serão adicionados aqui pelo JavaScript -->
-                </div>
+                <div id="avatarOptionsContainer" class="avatar-options"></div>
             </div>
         </div>
     </div>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
     <script src="script.js"></script>
 </body>
 </html>
-

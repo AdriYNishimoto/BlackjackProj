@@ -1,4 +1,3 @@
-// Elementos da DOM
 const canvas = document.getElementById("gameCanvas");
 const ctx = canvas.getContext("2d");
 const hitButton = document.getElementById("hitButton");
@@ -19,9 +18,10 @@ const changeAvatarButton = document.getElementById("changeAvatarButton");
 const avatarSelectionModal = document.getElementById("avatarSelectionModal");
 const closeAvatarModalButton = document.getElementById("closeAvatarModal");
 const avatarOptionsContainer = document.getElementById("avatarOptionsContainer");
+const resetBalanceButton = document.getElementById("resetBalanceButton");
 
 // Configurações do Jogo
-let playerBalance = 1000;
+let playerBalance = 10000;
 let initialBet = 10;
 let deck = [];
 let playerHands = [];
@@ -43,19 +43,18 @@ const availableAvatars = [
 const CARD_WIDTH = 70;
 const CARD_HEIGHT = 100;
 const PADDING = 10;
-const BASE_HAND_SPACING = CARD_WIDTH + PADDING * 2; 
-let HAND_SPACING = CARD_WIDTH + PADDING * 5; 
+const BASE_HAND_SPACING = CARD_WIDTH + PADDING * 2;
+let HAND_SPACING = CARD_WIDTH + PADDING * 5;
 
 const DEALER_HAND_Y = PADDING * 3;
 let PLAYER_HAND_Y = canvas.height - CARD_HEIGHT - PADDING * 3;
 
 let DECK_POS_X;
 let DECK_POS_Y;
-const DECK_CARD_OFFSET = 2; 
+const DECK_CARD_OFFSET = 2;
 
 const LOCAL_STORAGE_KEY = "blackjackGameData";
 
-// Áudio
 const sounds = {
     deal: new Audio("assets/audio/deal.wav"),
     win: new Audio("assets/audio/win.wav"),
@@ -71,7 +70,15 @@ function playSound(soundName) {
     }
 }
 
-// Funções de Avatar
+function resetBalance() {
+    playSound("click");
+    playerBalance = 10000;
+    updateBalanceDisplay();
+    showMessage("Saldo redefinido para $10,000!");
+    localStorage.removeItem(LOCAL_STORAGE_KEY); // Clear saved data to prevent old balance from reloading
+    saveData(); // Save new balance
+}
+
 function populateAvatarOptions() {
     avatarOptionsContainer.innerHTML = "";
     availableAvatars.forEach(avatarSrc => {
@@ -109,7 +116,6 @@ function closeAvatarModal() {
     avatarSelectionModal.style.display = "none";
 }
 
-// Funções de Tema
 function applyTheme(theme) {
     document.body.classList.remove("light-theme", "dark-theme");
     document.body.classList.add(theme);
@@ -124,7 +130,6 @@ function toggleTheme() {
     saveData();
 }
 
-// Funções de Histórico de Rodadas
 function formatCardForHistory(card) {
     return `${card.rank}${getSuitSymbol(card.suit)}`;
 }
@@ -185,7 +190,6 @@ function toggleHistoryArea() {
     }
 }
 
-// Funções de Persistência de Dados
 function saveData() {
     try {
         const dataToSave = {
@@ -209,7 +213,7 @@ function loadData() {
             if (parsedData.balance !== undefined && !isNaN(parsedData.balance)) {
                 playerBalance = parseInt(parsedData.balance, 10);
             } else {
-                playerBalance = 1000;
+                playerBalance = 10000;
             }
             if (parsedData.theme && (parsedData.theme === "light-theme" || parsedData.theme === "dark-theme")) {
                 applyTheme(parsedData.theme);
@@ -228,7 +232,7 @@ function loadData() {
             }
             playerAvatarDisplay.src = currentPlayerAvatar;
         } else {
-            playerBalance = 1000;
+            playerBalance = 10000;
             applyTheme("dark-theme");
             roundHistory = [];
             currentPlayerAvatar = "assets/avatars/default.png";
@@ -237,7 +241,7 @@ function loadData() {
         }
     } catch (error) {
         console.error("Erro ao carregar dados do localStorage:", error);
-        playerBalance = 1000;
+        playerBalance = 10000;
         applyTheme("dark-theme");
         roundHistory = [];
         currentPlayerAvatar = "assets/avatars/default.png";
@@ -248,8 +252,6 @@ function loadData() {
     renderRoundHistory();
 }
 
-
-// Inicialização do Canvas
 function setupCanvas() {
     canvas.width = 780;
     canvas.height = 500;
@@ -258,7 +260,6 @@ function setupCanvas() {
     PLAYER_HAND_Y = canvas.height - CARD_HEIGHT - PADDING * 3;
 }
 
-// Funções de Lógica do Jogo
 function createDeck() {
     const suits = ["Copas", "Ouros", "Paus", "Espadas"];
     const ranks = ["A", "2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K"];
@@ -300,22 +301,15 @@ function calculateHandScore(handCards) {
     return score;
 }
 
-// Funções de Renderização no Canvas
 function drawStyledCard(card, x, y, width, height, isFaceDown = false) {
     const cornerRadius = 8;
     ctx.save();
-    ctx.shadowColor = "rgba(0, 0, 0, 0.4)"; 
+    ctx.shadowColor = "rgba(0, 0, 0, 0.4)";
     ctx.shadowBlur = 7;
     ctx.shadowOffsetX = 3;
     ctx.shadowOffsetY = 3;
 
-    ctx.fillStyle = isFaceDown ? "#4a0e6b" : "#f0e8f7"; 
-    if (currentTheme === "light-theme" && !isFaceDown) {
-        ctx.fillStyle = "#ffffff";
-    } else if (currentTheme === "light-theme" && isFaceDown) {
-        ctx.fillStyle = "#7c5295"; 
-    }
-
+    ctx.fillStyle = isFaceDown ? (currentTheme === "light-theme" ? "#7c5295" : "#4a0e6b") : (currentTheme === "light-theme" ? "#ffffff" : "#f0e8f7");
     ctx.beginPath();
     ctx.moveTo(x + cornerRadius, y);
     ctx.lineTo(x + width - cornerRadius, y);
@@ -329,18 +323,13 @@ function drawStyledCard(card, x, y, width, height, isFaceDown = false) {
     ctx.closePath();
     ctx.fill();
     
-    ctx.strokeStyle = currentTheme === "light-theme" ? "#c0b0d0" : "#8a6fab"; 
+    ctx.strokeStyle = currentTheme === "light-theme" ? "#c0b0d0" : "#8a6fab";
     ctx.lineWidth = 1.5;
     ctx.stroke();
     ctx.restore();
 
     if (!isFaceDown && !card.hidden) {
-        let suitColor;
-        if (card.suit === "Copas" || card.suit === "Ouros") {
-            suitColor = "#D90000"; // Vermelho
-        } else {
-            suitColor = "#000000"; // Preto
-        }
+        let suitColor = card.suit === "Copas" || card.suit === "Ouros" ? "#D90000" : "#000000";
         ctx.fillStyle = suitColor;
 
         ctx.font = "bold 18px Poppins";
@@ -367,14 +356,14 @@ function drawDeck() {
         drawStyledCard({}, DECK_POS_X + i * DECK_CARD_OFFSET, DECK_POS_Y + i * DECK_CARD_OFFSET, CARD_WIDTH, CARD_HEIGHT, true);
     }
     if (deck.length > 0) {
-         drawStyledCard({}, DECK_POS_X + (numCardsToVisualize > 0 ? (numCardsToVisualize -1) * DECK_CARD_OFFSET : 0) , DECK_POS_Y + (numCardsToVisualize > 0 ? (numCardsToVisualize -1) * DECK_CARD_OFFSET : 0), CARD_WIDTH, CARD_HEIGHT, true);
+        drawStyledCard({}, DECK_POS_X + (numCardsToVisualize > 0 ? (numCardsToVisualize - 1) * DECK_CARD_OFFSET : 0), DECK_POS_Y + (numCardsToVisualize > 0 ? (numCardsToVisualize - 1) * DECK_CARD_OFFSET : 0), CARD_WIDTH, CARD_HEIGHT, true);
     }
 
     const canvasTextColor = getComputedStyle(document.body).getPropertyValue("--text-color").trim();
     ctx.fillStyle = canvasTextColor;
-    ctx.font = "12px Poppins";
+    ctx.font = "bold 14px Poppins";
     ctx.textAlign = "center";
-    ctx.fillText(`Baralho (${deck.length})`, DECK_POS_X + CARD_WIDTH / 2, DECK_POS_Y + CARD_HEIGHT + PADDING + (numCardsToVisualize > 0 ? (numCardsToVisualize -1) * DECK_CARD_OFFSET : 0));
+    ctx.fillText(`Baralho (${deck.length})`, DECK_POS_X + CARD_WIDTH / 2, DECK_POS_Y + CARD_HEIGHT + PADDING * 2);
 }
 
 function getSuitSymbol(suit) {
@@ -390,30 +379,34 @@ function getSuitSymbol(suit) {
 function calculateDynamicHandSpacing() {
     const numHands = playerHands.length;
     if (numHands <= 1) {
-        HAND_SPACING = CARD_WIDTH + PADDING * 5; 
+        HAND_SPACING = CARD_WIDTH + PADDING * 5;
         return;
     }
-    const totalAvailableWidth = canvas.width - (PADDING * 2); 
+    const totalAvailableWidth = canvas.width - (PADDING * 2);
     let calculatedSpacing = totalAvailableWidth / numHands;
-    const minHandWidth = (CARD_WIDTH * 1.5) + (PADDING * 2); 
+    const minHandWidth = (CARD_WIDTH * 1.5) + (PADDING * 2);
     HAND_SPACING = Math.max(calculatedSpacing, minHandWidth);
 }
 
 function renderGame() {
+    console.log("renderGame called");
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     const canvasTextColor = getComputedStyle(document.body).getPropertyValue("--text-color").trim();
-    const canvasAccentColor = getComputedStyle(document.body).getPropertyValue("--primary-accent-color").trim(); 
-    const canvasSecondaryAccentColor = getComputedStyle(document.body).getPropertyValue("--secondary-accent-color").trim(); 
-    const canvasBackgroundColor = getComputedStyle(document.body).getPropertyValue("--canvas-bg-color").trim();
-    const canvasTableColor = getComputedStyle(document.body).getPropertyValue("--canvas-table-color").trim();
+    const canvasAccentColor = getComputedStyle(document.body).getPropertyValue("--primary-accent-color").trim();
+    const canvasSecondaryAccentColor = getComputedStyle(document.body).getPropertyValue("--secondary-accent-color").trim();
+    const canvasGradientStart = getComputedStyle(document.body).getPropertyValue("--canvas-gradient-start").trim();
+    const canvasGradientEnd = getComputedStyle(document.body).getPropertyValue("--canvas-gradient-end").trim();
 
-    ctx.fillStyle = canvasBackgroundColor;
+    const gradient = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
+    gradient.addColorStop(0, canvasGradientStart);
+    gradient.addColorStop(1, canvasGradientEnd);
+    ctx.fillStyle = gradient;
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
     const tablePadding = PADDING * 1.5;
     const tableCornerRadius = 15;
-    ctx.fillStyle = canvasTableColor; 
-    ctx.strokeStyle = canvasAccentColor; 
+    ctx.fillStyle = currentTheme === "light-theme" ? "rgba(0, 100, 0, 0.8)" : "rgba(0, 80, 0, 0.8)";
+    ctx.strokeStyle = canvasAccentColor;
     ctx.lineWidth = 3;
     ctx.beginPath();
     ctx.moveTo(tablePadding + tableCornerRadius, tablePadding);
@@ -432,49 +425,67 @@ function renderGame() {
     calculateDynamicHandSpacing();
     drawDeck();
 
-    ctx.fillStyle = canvasTextColor;
-    ctx.font = "bold 20px Poppins";
-    
-    // Área do Dealer - Centralizada
     const dealerAreaX = canvas.width / 2;
-    const dealerAreaY = DEALER_HAND_Y - PADDING * 1.5; // Ajuste para cima do nome
-    ctx.textAlign = "center"; // Centraliza o texto "Dealer"
-    ctx.fillText("Dealer", dealerAreaX, dealerAreaY);
+    const dealerNameY = DEALER_HAND_Y - PADDING * 3;
+    ctx.fillStyle = canvasTextColor;
+    ctx.font = "bold 24px Poppins";
+    ctx.textAlign = "center";
+    ctx.shadowColor = "rgba(0, 0, 0, 0.5)";
+    ctx.shadowBlur = 5;
+    ctx.fillText("Dealer", dealerAreaX, dealerNameY);
+    ctx.shadowBlur = 0;
 
-    // Ajustar o X inicial das cartas do dealer para centralizar a mão
     const dealerHandWidth = dealerCards.length * (CARD_WIDTH + PADDING) - PADDING;
     const dealerCardsStartX = dealerAreaX - dealerHandWidth / 2;
-
     for (let i = 0; i < dealerCards.length; i++) {
         const card = dealerCards[i];
-        // Atualiza a posição X da carta do dealer para centralizar
         card.x = dealerCardsStartX + i * (CARD_WIDTH + PADDING);
-        card.y = DEALER_HAND_Y; // Mantém o Y original
+        card.y = DEALER_HAND_Y;
         if (card.x !== undefined && card.y !== undefined) {
-             drawStyledCard(card, card.x, card.y, CARD_WIDTH, CARD_HEIGHT, card.hidden);
+            drawStyledCard(card, card.x, card.y, CARD_WIDTH, CARD_HEIGHT, card.hidden);
         }
     }
-    const dealerScoreTextY = DEALER_HAND_Y + CARD_HEIGHT + PADDING * 2;
-    ctx.font = "18px Poppins";
-    ctx.textAlign = "center"; // Centraliza o score do dealer
-    if (gameInProgress && playerHands.length > 0 && playerHands.some(h => h.status === "active") && dealerCards.some(c => c.hidden)) {
-        ctx.fillText(`Score: ?`, dealerAreaX, dealerScoreTextY);
-    } else {
-        ctx.fillText(`Score: ${calculateHandScore(dealerCards)}`, dealerAreaX, dealerScoreTextY);
-    }
 
-    // Área do Jogador
+    const dealerScoreTextY = DEALER_HAND_Y + CARD_HEIGHT + PADDING * 3;
+    const scoreText = gameInProgress && playerHands.length > 0 && playerHands.some(h => h.status === "active") && dealerCards.some(c => c.hidden) ? "Score: ?" : `Score: ${calculateHandScore(dealerCards)}`;
+    ctx.font = "bold 20px Poppins";
+    ctx.textAlign = "center";
+    const textMetrics = ctx.measureText(scoreText);
+    const textWidth = textMetrics.width;
+    const textHeight = 20;
+    const bgPadding = 8;
+    
+    ctx.fillStyle = currentTheme === "light-theme" ? "rgba(255, 255, 255, 0.7)" : "rgba(0, 0, 0, 0.7)";
+    ctx.beginPath();
+    ctx.moveTo(dealerAreaX - textWidth / 2 - bgPadding + 5, dealerScoreTextY - textHeight);
+    ctx.lineTo(dealerAreaX + textWidth / 2 + bgPadding - 5, dealerScoreTextY - textHeight);
+    ctx.quadraticCurveTo(dealerAreaX + textWidth / 2 + bgPadding, dealerScoreTextY - textHeight, dealerAreaX + textWidth / 2 + bgPadding, dealerScoreTextY - textHeight + 5);
+    ctx.lineTo(dealerAreaX + textWidth / 2 + bgPadding, dealerScoreTextY + textHeight / 2);
+    ctx.quadraticCurveTo(dealerAreaX + textWidth / 2 + bgPadding, dealerScoreTextY + textHeight, dealerAreaX + textWidth / 2 + bgPadding - 5, dealerScoreTextY + textHeight);
+    ctx.lineTo(dealerAreaX - textWidth / 2 - bgPadding + 5, dealerScoreTextY + textHeight);
+    ctx.quadraticCurveTo(dealerAreaX - textWidth / 2 - bgPadding, dealerScoreTextY + textHeight, dealerAreaX - textWidth / 2 - bgPadding, dealerScoreTextY + textHeight - 5);
+    ctx.lineTo(dealerAreaX - textWidth / 2 - bgPadding, dealerScoreTextY - textHeight + 5);
+    ctx.quadraticCurveTo(dealerAreaX - textWidth / 2 - bgPadding, dealerScoreTextY - textHeight, dealerAreaX - textWidth / 2 - bgPadding + 5, dealerScoreTextY - textHeight);
+    ctx.closePath();
+    ctx.fill();
+
+    ctx.fillStyle = canvasAccentColor;
+    ctx.shadowColor = "rgba(0, 0, 0, 0.3)";
+    ctx.shadowBlur = 3;
+    ctx.fillText(scoreText, dealerAreaX, dealerScoreTextY);
+    ctx.shadowBlur = 0;
+
     playerHands.forEach((hand, index) => {
         const handStartX = PADDING * 2 + index * HAND_SPACING;
-        ctx.fillStyle = canvasTextColor;
+        ctx.fillStyle = canvasAccentColor;
         ctx.font = "bold 16px Poppins";
-        ctx.textAlign = "left"; // Alinhamento para nome da mão do jogador
+        ctx.textAlign = "left";
         ctx.fillText(`Mão ${index + 1} (Aposta: $${hand.bet})`, handStartX, PLAYER_HAND_Y - PADDING);
         if (index === currentHandIndex && hand.status === "active") {
-            ctx.strokeStyle = canvasSecondaryAccentColor; 
+            ctx.strokeStyle = canvasSecondaryAccentColor;
             ctx.lineWidth = 3;
-            const currentHandWidth = hand.cards.length * (CARD_WIDTH + PADDING) - PADDING; 
-            ctx.strokeRect(handStartX - PADDING / 2, PLAYER_HAND_Y - PADDING * 2.5, currentHandWidth + PADDING, CARD_HEIGHT + PADDING * 3.5);
+            const currentHandWidth = hand.cards.length * (CARD_WIDTH + PADDING) - PADDING;
+            ctx.strokeRect(handStartX - PADDING / 3, PLAYER_HAND_Y - PADDING * 3, currentHandWidth + PADDING, CARD_HEIGHT + PADDING * 4);
         }
 
         for (let i = 0; i < hand.cards.length; i++) {
@@ -483,9 +494,10 @@ function renderGame() {
                 drawStyledCard(card, card.x, card.y, CARD_WIDTH, CARD_HEIGHT, card.hidden);
             }
         }
-        ctx.font = "18px Poppins";
-        ctx.textAlign = "left"; // Alinhamento para score da mão do jogador
-        ctx.fillText(`Score: ${hand.score}`, handStartX, PLAYER_HAND_Y + CARD_HEIGHT + PADDING * 1.5);
+        ctx.fillStyle = canvasTextColor;
+        ctx.font = "bold 18px Poppins";
+        ctx.textAlign = "left";
+        ctx.fillText(`Score: ${hand.score}`, handStartX, PLAYER_HAND_Y + CARD_HEIGHT * 1 + PADDING * 2);
     });
 }
 
@@ -503,24 +515,24 @@ async function animatedDeal(handObj, isHiddenInitially = false, cardToDeal = nul
     const card = cardToDeal || deck.pop();
     card.hidden = isHiddenInitially;
     const numDeckVisualCards = Math.min(deck.length + 1, 5);
-    card.x = card.x === undefined ? (DECK_POS_X + (numDeckVisualCards > 0 ? (numDeckVisualCards -1) * DECK_CARD_OFFSET : 0)) : card.x;
-    card.y = card.y === undefined ? (DECK_POS_Y + (numDeckVisualCards > 0 ? (numDeckVisualCards -1) * DECK_CARD_OFFSET : 0)) : card.y;
+    card.x = card.x === undefined ? (DECK_POS_X + (numDeckVisualCards > 0 ? (numDeckVisualCards - 1) * DECK_CARD_OFFSET : 0)) : card.x;
+    card.y = card.y === undefined ? (DECK_POS_Y + (numDeckVisualCards > 0 ? (numDeckVisualCards - 1) * DECK_CARD_OFFSET : 0)) : card.y;
     card.rotation = card.rotation === undefined ? 0 : card.rotation;
 
     let targetHandCards = Array.isArray(handObj) ? handObj : handObj.cards;
-    if (!cardToDeal) { 
+    if (!cardToDeal) {
         targetHandCards.push(card);
     }
 
     let targetX, targetY;
-    const cardIndexInDisplay = targetHandCards.indexOf(card); 
+    const cardIndexInDisplay = targetHandCards.indexOf(card);
 
-    if (Array.isArray(handObj)) { // Dealer's hand
+    if (Array.isArray(handObj)) {
         const dealerHandWidth = targetHandCards.length * (CARD_WIDTH + PADDING) - PADDING;
         const dealerCardsStartX = (canvas.width / 2) - dealerHandWidth / 2;
         targetX = dealerCardsStartX + cardIndexInDisplay * (CARD_WIDTH + PADDING);
         targetY = DEALER_HAND_Y;
-    } else { // Player's hand
+    } else {
         const handDisplayIndex = playerHands.indexOf(handObj);
         targetX = PADDING * 2 + handDisplayIndex * HAND_SPACING + cardIndexInDisplay * (CARD_WIDTH + PADDING);
         targetY = PLAYER_HAND_Y;
@@ -530,7 +542,7 @@ async function animatedDeal(handObj, isHiddenInitially = false, cardToDeal = nul
         gsap.to(card, {
             x: targetX,
             y: targetY,
-            rotation: (Math.random() - 0.5) * 10, 
+            rotation: (Math.random() - 0.5) * 10,
             duration: 0.5,
             ease: "power2.out",
             onUpdate: renderGame,
@@ -548,10 +560,10 @@ async function animatedDeal(handObj, isHiddenInitially = false, cardToDeal = nul
 
 async function animatedFlipCard(cardToFlip) {
     return new Promise(resolve => {
-        let originalX = cardToFlip.x; 
+        let originalX = cardToFlip.x;
         gsap.to(cardToFlip, {
-            width: 0, 
-            x: originalX + CARD_WIDTH / 2, 
+            width: 0,
+            x: originalX + CARD_WIDTH / 2,
             duration: 0.2,
             ease: "power1.in",
             onUpdate: renderGame,
@@ -559,8 +571,8 @@ async function animatedFlipCard(cardToFlip) {
                 cardToFlip.hidden = false;
                 playSound("deal");
                 gsap.to(cardToFlip, {
-                    width: CARD_WIDTH, 
-                    x: originalX, 
+                    width: CARD_WIDTH,
+                    x: originalX,
                     duration: 0.2,
                     ease: "power1.out",
                     onUpdate: renderGame,
@@ -698,7 +710,7 @@ async function playerSplit() {
     updateBalanceDisplay();
 
     const isSplittingAces = currentHand.cards[0].isAce;
-    const cardToMove = currentHand.cards.pop(); 
+    const cardToMove = currentHand.cards.pop();
     currentHand.score = calculateHandScore(currentHand.cards);
     currentHand.canDouble = !isSplittingAces;
     currentHand.isSplitAceHand = isSplittingAces;
@@ -712,21 +724,18 @@ async function playerSplit() {
         isSplitAceHand: isSplittingAces
     };
     playerHands.splice(currentHandIndex + 1, 0, newHand);
-    calculateDynamicHandSpacing(); 
-    renderGame(); 
+    calculateDynamicHandSpacing();
+    renderGame();
 
     showMessage("Mãos divididas! Jogando a primeira mão.");
 
-    // Animar a carta que foi movida para a sua nova posição na newHand
-    // A carta já está em newHand.cards[0], precisamos definir sua posição inicial (onde estava) e animar para a final
-    const originalCardX = PADDING * 2 + currentHandIndex * HAND_SPACING + 1 * (CARD_WIDTH + PADDING); 
+    const originalCardX = PADDING * 2 + currentHandIndex * HAND_SPACING + 1 * (CARD_WIDTH + PADDING);
     const originalCardY = PLAYER_HAND_Y;
     cardToMove.x = originalCardX;
     cardToMove.y = originalCardY;
     
-    await animatedDeal(newHand, false, cardToMove); 
-
-    await animatedDeal(currentHand); 
+    await animatedDeal(newHand, false, cardToMove);
+    await animatedDeal(currentHand);
     currentHand.score = calculateHandScore(currentHand.cards);
     if (currentHand.score === 21 && currentHand.cards.length === 2) {
         showMessage(`Mão ${currentHandIndex + 1} tem 21!`);
@@ -735,7 +744,7 @@ async function playerSplit() {
         }
     }
 
-    await animatedDeal(newHand); 
+    await animatedDeal(newHand);
     newHand.score = calculateHandScore(newHand.cards);
     if (newHand.score === 21 && newHand.cards.length === 2) {
         showMessage(`Mão ${playerHands.indexOf(newHand) + 1} tem 21!`);
@@ -759,7 +768,6 @@ async function playerSplit() {
         await nextHandOrDealerTurn();
     }
 }
-
 
 async function nextHandOrDealerTurn() {
     const currentPlayersHand = playerHands[currentHandIndex];
@@ -927,8 +935,7 @@ function endRound(overallRoundResult = "Rodada finalizada.") {
             } else {
                 handResultText += `Resultado: ${hand.status}`;
             }
-        }
-        else {
+        } else {
             handResultText += `Status não finalizado (${hand.status}).`;
         }
         finalMessage += handResultText + "\n";
@@ -989,8 +996,7 @@ function updateButtonStates() {
     newRoundButton.disabled = gameInProgress;
 }
 
-// Event Listeners
-["hitButton", "standButton", "newRoundButton", "exitButton", "doubleButton", "splitButton"].forEach(id => {
+["hitButton", "standButton", "newRoundButton", "exitButton", "doubleButton", "splitButton", "resetBalanceButton"].forEach(id => {
     const button = document.getElementById(id);
     if (button) {
         button.addEventListener("click", () => {
@@ -1017,6 +1023,7 @@ exitButton.addEventListener("click", () => {
     updateButtonStates();
     newRoundButton.disabled = false;
 });
+resetBalanceButton.addEventListener("click", resetBalance);
 
 if (themeToggleButton) {
     themeToggleButton.addEventListener("click", toggleTheme);
@@ -1036,8 +1043,8 @@ window.addEventListener("click", (event) => {
     }
 });
 
-// Inicialização
 window.onload = () => {
+    console.log("window.onload executed");
     setupCanvas();
     loadData();
     renderGame();
@@ -1051,4 +1058,3 @@ window.onload = () => {
     roundHistoryArea.style.display = "none";
     avatarSelectionModal.style.display = "none";
 };
-

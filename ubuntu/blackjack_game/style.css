@@ -1,446 +1,247 @@
-/* Blackjack Game - Redesign Visual */
-
-@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap");
-
 :root {
-    /* Cores do Tema Escuro (Padrão) */
-    --bg-color: #1a1a2e;
-    --container-bg-color: #2a2a3e;
-    --text-color: #e0e0e0;
-    --primary-accent-color: #f8c537; 
-    --secondary-accent-color: #6a1b9a; 
-    --tertiary-accent-color: #c0c0ff; 
-    --canvas-gradient-start: #4a00e0;
-    --canvas-gradient-end: #8e2de2;
-    --button-disabled-bg: #4a4a6a;
-    --button-disabled-text: #888;
-    --message-area-bg: rgba(0, 0, 0, 0.4);
-    --message-area-border: #82eefd;
-    --message-area-text: #82eefd;
-    --input-bg: #1a1a2e;
-    --input-border: #6a1b9a;
-    --input-focus-border: #f8c537;
-    --container-border: #4a4a6a;
-    --history-bg: rgba(0,0,0,0.2);
-    --history-border: var(--primary-accent-color);
-    --history-li-bg: rgba(255,255,255,0.05);
-    --modal-bg: rgba(0, 0, 0, 0.7);
-    --modal-content-bg: #2a2a3e;
+    --background-color: #121212;
+    --text-color: #ffffff;
+    --primary-accent-color: #FFD700;
+    --secondary-accent-color: #FF4500;
+    --button-bg: #1e1e1e;
+    --button-hover-bg: #333333;
+    --canvas-gradient-start: #0a0a0a;
+    --canvas-gradient-end: #1c2526;
+    --modal-bg: #1e1e1e;
+}
+
+.light-theme {
+    --background-color: #f0f0f0;
+    --text-color: #000000;
+    --primary-accent-color: #FFD700;
+    --secondary-accent-color: #FF4500;
+    --button-bg: #ffffff;
+    --button-hover-bg: #e0e0e0;
+    --canvas-gradient-start: #d3d3d3;
+    --canvas-gradient-end: #a9a9a9;
+    --modal-bg: #ffffff;
 }
 
 body {
-    font-family: "Poppins", sans-serif;
-    background-color: var(--bg-color);
+    margin: 0;
+    font-family: 'Poppins', sans-serif;
+    background-color: var(--background-color);
     color: var(--text-color);
     display: flex;
     justify-content: center;
     align-items: center;
     min-height: 100vh;
-    margin: 0;
+}
+
+.game-container {
+    max-width: 900px;
+    width: 100%;
     padding: 20px;
     box-sizing: border-box;
-    overflow-x: hidden;
-    transition: background-color 0.3s ease, color 0.3s ease;
-}
-
-/* Estilos para o Tema Claro */
-body.light-theme {
-    --bg-color: #f0f0f0;
-    --container-bg-color: #ffffff;
-    --text-color: #333333;
-    --primary-accent-color: #d9006c; 
-    --secondary-accent-color: #5e35b1; 
-    --tertiary-accent-color: #007bff; 
-    --canvas-gradient-start: #7e57c2;
-    --canvas-gradient-end: #ab47bc;
-    --button-disabled-bg: #cccccc;
-    --button-disabled-text: #777777;
-    --message-area-bg: rgba(0, 0, 0, 0.05);
-    --message-area-border: #007bff;
-    --message-area-text: #0056b3;
-    --input-bg: #ffffff;
-    --input-border: #5e35b1;
-    --input-focus-border: #d9006c;
-    --container-border: #cccccc;
-    --history-bg: rgba(0,0,0,0.03);
-    --history-border: var(--primary-accent-color);
-    --history-li-bg: rgba(0,0,0,0.02);
-    --modal-content-bg: #f9f9f9;
-}
-
-.container {
-    background-color: var(--container-bg-color);
-    padding: 25px;
-    border-radius: 15px;
-    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
-    text-align: center;
-    width: 100%;
-    max-width: 850px; 
-    border: 1px solid var(--container-border);
-    transition: background-color 0.3s ease, border-color 0.3s ease;
-    position: relative; 
 }
 
 .top-bar {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 15px;
-    position: relative; /* Para que os botões de topo fiquem dentro desta barra */
-    height: 60px; /* Altura para acomodar avatar e botões */
+    margin-bottom: 20px;
 }
 
-.player-avatar-area {
+.player-info {
     display: flex;
     align-items: center;
 }
 
-#playerAvatarDisplay {
-    width: 50px;
-    height: 50px;
+.player-avatar {
+    width: 40px;
+    height: 40px;
     border-radius: 50%;
-    border: 2px solid var(--primary-accent-color);
     margin-right: 10px;
-    object-fit: cover; /* Para caso as imagens não sejam quadradas */
+    border: 2px solid var(--primary-accent-color);
 }
 
-.avatar-change-button {
-    background-color: var(--tertiary-accent-color);
-    color: var(--container-bg-color);
-    padding: 6px 10px;
-    font-size: 0.8em;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    transition: background-color 0.2s ease;
-}
-
-.avatar-change-button:hover {
-    background-color: var(--primary-accent-color);
-}
-
-.top-buttons {
-    position: absolute;
-    top: 0;
-    right: 0;
-    display: flex;
-}
-
-.top-right-button {
-    /* position: absolute; removido daqui, controlado pelo .top-buttons */
-    /* top: 20px; removido */
+.avatar-button, .theme-button, .history-button, .reset-balance-button {
+    background-color: var(--button-bg);
+    color: var(--text-color);
+    border: 1px solid var(--primary-accent-color);
     padding: 8px 12px;
-    z-index: 1000;
-    background-color: var(--secondary-accent-color);
-    color: #ffffff;
-    border: none;
-    border-radius: 8px;
     cursor: pointer;
-    font-weight: 600;
-    font-size: 0.9em;
-    transition: background-color 0.3s ease, transform 0.2s ease;
-    margin-left: 10px; /* Espaçamento entre os botões de topo */
+    font-size: 14px;
+    border-radius: 5px;
+    transition: background-color 0.3s;
 }
 
-#themeToggleButton {
-    /* right: 20px; removido */
-    background-color: var(--primary-accent-color);
+.avatar-button:hover, .theme-button:hover, .history-button:hover, .reset-balance-button:hover {
+    background-color: var(--button-hover-bg);
 }
 
-body.light-theme #themeToggleButton {
-    background-color: var(--secondary-accent-color);
-}
-
-/* #historyToggleButton { right: 140px; removido } */
-
-.top-right-button:hover {
-    transform: scale(1.05);
-}
-
-h1 {
-    font-size: 2.8em;
-    color: var(--primary-accent-color);
-    margin-top: 0; /* Ajustado por causa da top-bar */
-    margin-bottom: 25px;
-    text-shadow: 0 0 10px var(--primary-accent-color), 0 0 15px var(--primary-accent-color);
-    font-weight: 700;
-    transition: color 0.3s ease, text-shadow 0.3s ease;
+.balance-info {
+    font-size: 18px;
+    font-weight: bold;
 }
 
 #gameCanvas {
-    background: linear-gradient(135deg, var(--canvas-gradient-start), var(--canvas-gradient-end));
-    border: 3px solid var(--primary-accent-color);
+    width: 100%;
+    max-width: 780px;
+    height: 500px;
+    border: 2px solid var(--secondary-accent-color);
     border-radius: 10px;
-    display: block; 
-    margin: 0 auto 25px auto; 
-    max-width: 100%;
-    height: auto; 
-    box-shadow: 0 0 15px color-mix(in srgb, var(--primary-accent-color) 50%, transparent);
-    transition: background 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+    display: block;
+    margin: 0 auto;
+    background-color: transparent;
 }
 
-.controls button {
-    background-color: var(--secondary-accent-color);
-    color: #ffffff; 
-    border: none;
-    padding: 12px 20px;
-    margin: 8px;
-    border-radius: 8px;
-    cursor: pointer;
-    font-weight: 600;
-    font-size: 1em;
-    transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease, color 0.3s ease;
-    box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+.controls {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 20px;
 }
 
-.controls button:hover:not(:disabled) {
-    background-color: var(--primary-accent-color);
-    color: var(--bg-color); 
-    transform: translateY(-2px) scale(1.03);
-    box-shadow: 0 6px 12px color-mix(in srgb, var(--primary-accent-color) 40%, transparent);
+.bet-section {
+    display: flex;
+    align-items: center;
 }
 
-.controls button:active:not(:disabled) {
-    transform: translateY(0px) scale(1);
-    box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+.bet-section label {
+    margin-right: 10px;
+    font-size: 16px;
 }
 
-.controls button:disabled {
-    background-color: var(--button-disabled-bg);
-    color: var(--button-disabled-text);
-    cursor: not-allowed;
-    box-shadow: none;
-}
-
-.info p {
-    margin: 12px 0;
-    font-size: 1.2em;
-    color: var(--tertiary-accent-color);
-    transition: color 0.3s ease;
-}
-
-.info span#balance {
-    color: var(--primary-accent-color);
-    font-weight: bold;
-    transition: color 0.3s ease;
-}
-
-.info input[type="number"] {
-    padding: 10px;
-    border-radius: 8px;
-    border: 2px solid var(--input-border);
-    background-color: var(--input-bg);
+#betAmount {
+    width: 80px;
+    padding: 5px;
+    font-size: 14px;
+    border: 1px solid var(--primary-accent-color);
+    border-radius: 5px;
+    background-color: var(--button-bg);
     color: var(--text-color);
-    width: 90px; 
-    text-align: center;
-    font-size: 1em;
-    transition: border-color 0.3s ease, box-shadow 0.3s ease, background-color 0.3s ease, color 0.3s ease;
 }
 
-.info input[type="number"]:focus {
-    border-color: var(--input-focus-border);
-    box-shadow: 0 0 8px color-mix(in srgb, var(--input-focus-border) 50%, transparent);
-    outline: none;
+.game-buttons {
+    display: flex;
+    gap: 10px;
 }
 
-#messageArea {
-    margin-top: 25px;
-    padding: 15px;
-    background-color: var(--message-area-bg);
-    border-radius: 8px;
-    min-height: 40px;
-    font-size: 1.15em;
-    color: var(--message-area-text);
-    border: 1px dashed var(--message-area-border);
-    line-height: 1.6;
-    transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+.game-buttons button {
+    background-color: var(--button-bg);
+    color: var(--text-color);
+    border: 1px solid var(--secondary-accent-color);
+    padding: 10px 15px;
+    cursor: pointer;
+    font-size: 14px;
+    border-radius: 5px;
+    transition: background-color 0.3s;
 }
 
-.round-history-area {
+.game-buttons button:hover {
+    background-color: var(--button-hover-bg);
+}
+
+.game-buttons button:disabled {
+    background-color: #555;
+    cursor: not-allowed;
+    border-color: #777;
+}
+
+.message-area {
     margin-top: 20px;
     padding: 15px;
-    background-color: var(--history-bg);
-    border: 1px solid var(--history-border);
-    border-radius: 8px;
-    max-height: 200px; 
-    overflow-y: auto;
-    text-align: left;
+    background-color: rgba(0, 0, 0, 0.3);
+    border-radius: 5px;
+    font-size: 16px;
+    text-align: center;
+    min-height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
-.round-history-area h2 {
-    font-size: 1.5em;
-    color: var(--primary-accent-color);
-    margin-top: 0;
-    margin-bottom: 10px;
-    text-align: center;
+.history-area {
+    margin-top: 20px;
+    padding: 15px;
+    background-color: var(--modal-bg);
+    border: 1px solid var(--primary-accent-color);
+    border-radius: 5px;
+    max-height: 200px;
+    overflow-y: auto;
+}
+
+.history-area h3 {
+    margin: 0 0 10px;
+    font-size: 18px;
 }
 
 #roundHistoryList {
-    list-style-type: none;
+    list-style: none;
     padding: 0;
-    margin: 0;
+    font-size: 14px;
 }
 
 #roundHistoryList li {
-    background-color: var(--history-li-bg);
+    margin-bottom: 10px;
     padding: 10px;
-    margin-bottom: 8px;
+    background-color: rgba(255, 255, 255, 0.1);
     border-radius: 5px;
-    font-size: 0.95em;
-    border-left: 3px solid var(--secondary-accent-color);
 }
 
-#roundHistoryList li strong {
-    color: var(--tertiary-accent-color);
-}
-
-/* Modal Styles */
 .modal {
-    display: none; 
-    position: fixed; 
-    z-index: 2000; 
+    display: none;
+    position: fixed;
+    z-index: 1000;
     left: 0;
     top: 0;
-    width: 100%; 
-    height: 100%; 
-    overflow: auto; 
-    background-color: var(--modal-bg);
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
 .modal-content {
-    background-color: var(--modal-content-bg);
-    margin: 10% auto; 
-    padding: 25px;
-    border: 1px solid var(--primary-accent-color);
+    background-color: var(--modal-bg);
+    padding: 20px;
     border-radius: 10px;
-    width: 80%; 
+    width: 90%;
     max-width: 500px;
-    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
     position: relative;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.close {
+    position: absolute;
+    top: 10px;
+    right: 15px;
     color: var(--text-color);
-}
-
-.close-button {
-    color: var(--tertiary-accent-color);
-    float: right;
-    font-size: 28px;
-    font-weight: bold;
-}
-
-.close-button:hover,
-.close-button:focus {
-    color: var(--primary-accent-color);
-    text-decoration: none;
+    font-size: 24px;
     cursor: pointer;
 }
 
-.avatar-options-container {
+.close:hover {
+    color: var(--primary-accent-color);
+}
+
+.avatar-options {
     display: flex;
     flex-wrap: wrap;
+    gap: 10px;
     justify-content: center;
-    gap: 15px;
-    margin-top: 20px;
 }
 
 .avatar-option {
-    width: 80px;
-    height: 80px;
+    width: 60px;
+    height: 60px;
     border-radius: 50%;
-    border: 3px solid transparent;
     cursor: pointer;
-    transition: border-color 0.2s ease, transform 0.2s ease;
-    object-fit: cover;
+    border: 2px solid transparent;
+    transition: border-color 0.3s;
 }
 
 .avatar-option:hover {
     border-color: var(--secondary-accent-color);
-    transform: scale(1.1);
 }
 
 .avatar-option.selected {
     border-color: var(--primary-accent-color);
-    box-shadow: 0 0 10px var(--primary-accent-color);
 }
-
-/* Responsividade */
-@media (max-width: 768px) {
-    .container {
-        padding: 20px;
-    }
-    h1 {
-        font-size: 2.4em;
-    }
-    .controls button, .top-right-button {
-        padding: 10px 15px;
-        font-size: 0.9em; 
-        margin: 6px;
-    }
-    .top-buttons { /* Ajuste para botões de topo em telas menores */
-        top: 5px;
-    }
-    .player-avatar-area {
-        margin-bottom: 10px; /* Espaço se quebrar linha */
-    }
-    .modal-content {
-        width: 90%;
-        margin: 15% auto;
-    }
-}
-
-@media (max-width: 480px) {
-    body {
-        padding: 10px;
-    }
-    .container {
-        padding: 15px;
-    }
-    h1 {
-        font-size: 2em;
-    }
-    .controls button {
-        padding: 8px 12px;
-        font-size: 0.9em;
-        width: calc(50% - 12px); 
-    }
-    .top-bar {
-        flex-direction: column; /* Empilha avatar e botões */
-        height: auto;
-        align-items: center;
-    }
-    .player-avatar-area {
-        margin-bottom: 10px;
-    }
-    .top-buttons {
-        position: static; /* Remove posicionamento absoluto */
-        margin-top: 10px;
-    }
-    .top-right-button {
-        padding: 7px 10px;
-        font-size: 0.8em;
-        margin: 5px; /* Ajusta margem */
-    }
-
-    .info p {
-        font-size: 1.1em;
-    }
-    .info input[type="number"] {
-        width: 70px;
-    }
-    #messageArea {
-        font-size: 1.05em;
-    }
-    .round-history-area h2 {
-        font-size: 1.3em;
-    }
-    #roundHistoryList li {
-        font-size: 0.9em;
-    }
-    .modal-content {
-        padding: 20px;
-    }
-    .avatar-option {
-        width: 60px;
-        height: 60px;
-    }
-}
-
